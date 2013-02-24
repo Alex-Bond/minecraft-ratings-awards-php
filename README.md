@@ -153,7 +153,7 @@
     'active' => true,
     'table-name' => 'items',
     'type' => 4,
-    'advanced' => true.
+    'advanced' => true,
     'fields' => array(
         'username' => '{player}',
         'item' => '1',
@@ -196,14 +196,13 @@
             'active' => true,
             'table-name' => 'items',
             'type' => 4,
-            'advanced' => true.
+            'advanced' => true,
             'fields' => array(
                 'username' => '{player}',
                 'item' => '1',
                 'item-count' => 64
-            ),
+            )
         )
-
     )
 </code></pre>
 

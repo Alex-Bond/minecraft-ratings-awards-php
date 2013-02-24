@@ -14,18 +14,28 @@ $config = array(
             'active' => true,
             'table-name' => 'iConomy',
             'type' => 0,
-            /*
-             * # ДОБАВЛЕНИЕ К ЧИСЛЕННОМУ ЗНАЧЕНИЮ
-             * 0 - только обновление (пополнение).
-             * 1 - вставка нового параметра если нет такой записи (поле user-column дожно быть уникально в схеме (уникальный индекс)).
-             * # ВЫСТАВЛЕНИЕ ЗНАЧЕНИЯ
-             * 2 - выставления значения
-             * 3 - вставка или выставление значения (поле user-column дожно быть уникально в схеме (уникальный индекс)).
-             * */
             'change-column' => 'balance',
             'user-column' => 'username',
-            'default' => 30, // Стандартный баланс
-            'change' => 1 // Бонус или значение
+            'change' => 1
+        ),
+        array(
+            'active' => true,
+            'table-name' => 'users-groups',
+            'type' => 3,
+            'change-column' => 'group',
+            'user-column' => 'username',
+            'change' => 'voted'
+        ),
+        array(
+            'active' => true,
+            'table-name' => 'items',
+            'type' => 4,
+            'advanced' => true,
+            'fields' => array(
+                'username' => '{player}',
+                'item' => '1',
+                'item-count' => 64
+            )
         )
     )
 );
@@ -61,6 +71,33 @@ if (isset($_GET['hash']) && isset($_GET['player']) && strlen($_GET['hash']) == 3
                         $query->execute(array($_GET['player'], $item['change'], $item['change']));
                         break;
                     }
+                    case 4:
+                    {
+                        if ($item['advanced']) {
+                            $exec = array();
+                            $columns = '';
+                            $values = '';
+                            foreach ($item['fields'] as $k => $a) {
+                                if (!empty($columns))
+                                    $columns .= ', `' . $key . '`';
+                                else {
+                                    $columns .= '`' . $key . '`';
+                                }
+                                if (!empty($values))
+                                    $values .= ', ?';
+                                else {
+                                    $values .= '?';
+                                }
+                                $exec[] = str_replace('{player}', $_GET['player'], $a);
+                            }
+                            $query = $db->prepare("INSERT INTO " . $item['table-name'] . " (" . $columns . ") VALUES (" . $values . ")");
+                            $query->execute($exec);
+                        } else {
+                            $query = $db->prepare("INSERT INTO " . $item['table-name'] . " (`" . $item['user-column'] . "`,`" . $item['change-column'] . "`) VALUES (?, ?)");
+                            $query->execute(array($_GET['player'], $item['change']));
+                        }
+                        break;
+                    }
                 }
 
                 if ($db->errorCode() != 0000) {
@@ -69,7 +106,6 @@ if (isset($_GET['hash']) && isset($_GET['player']) && strlen($_GET['hash']) == 3
                 }
             }
         }
-
         echo 'ok';
     } catch (PDOException $e) {
         die('Error: ' . $e->getMessage());
