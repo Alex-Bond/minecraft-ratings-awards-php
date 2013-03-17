@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Скрипт для получения бонуса за голосование на MC TOP. by Alex-Bond</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/Alex-Bond/minecraft-ratings-awards-php">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/Alex-Bond/minecraft-ratings-awards-php/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/Alex-Bond/minecraft-ratings-awards-php/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Скрипт для получения бонуса за голосование на MC TOP.</h1>
+          <p></p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/Alex-Bond">Alex-Bond</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>Скрипт для получения бонуса за голосование на MC TOP.</h1>
+
+<h2>Описание</h2>
+
+<p>Данный скрипт был специально разработан для администраторов серверов, которые хотят поощрять своих игроков за голосование за них на mctop.su.</p>
+
+<h2>Настройка</h2>
+
+<p>Для того чтобы настроить данный скрипт вам понадобится настроить для начала твой профиль на MC Top. Для этого войти в контрольную панель своего сервера в топе и укажи в разделе "Данные" секретное слово и путь к данном скрипту.</p>
+
+<p>Далее нам понадобится настроить сам скрипт. Все настройки хранятся в массиве $config. Его структура фиксированная и не может подвергаться изменениям со стороны человека слабо понимающего принцип работы скрипта.</p>
+
+<p>Массив состоит из:</p>
+
+<table>
+<tr>
+<th>Название</th>
+<th>Функционал</th>
+  </tr>
+<tr>
+<td>db</td>
+<td>Настройки базы данных</td>
+  </tr>
+<tr>
+<td>security-code</td>
+<td>Секретное слово из панели управления</td>
+  </tr>
+<tr>
+<td>jobs</td>
+<td>Задачи для выполнения</td>
+  </tr>
+</table><p>Как ты заметил - есть некое поле "jobs" в котором указываются задачи для выполнения. Иными словами - можно делать при голосовании несколько действий сразу. Например, добавить денег игроку и добавить в какую-то табличку запись о голосовании.</p>
+
+<h2>Настройка jobs</h2>
+
+<p>Для начала рассмотрим настройки задач:</p>
+
+<p><em>Jobs</em></p>
+
+<table>
+<tr>
+<th>Название</th>
+<th>Функционал</th>
+<th>Формат</th>
+<th>Значение по-умолчанию</th>
+  </tr>
+<tr>
+<td>active</td>
+<td>Включает выполнение данной задачи</td>
+<td>boolean</td>
+<td>true</td>
+  </tr>
+<tr>
+<td>stable-name</td>
+<td>Название таблички которую правим</td>
+<td>string</td>
+<td>iConomy</td>
+  </tr>
+<tr>
+<td>type</td>
+<td>Тип задачи (расшифровка в табличке ниже).</td>
+<td>int</td>
+<td>0</td>
+  </tr>
+<tr>
+<td>advanced</td>
+<td>Использовать ли ручное указание всех полей для изменения при type=4</td>
+<td>boolean</td>
+<td>false</td>
+  </tr>
+<tr>
+<td>fields</td>
+<td>Массив полей для изменения при включенном режиме "advanced". {player} в значении поля будет заменено на имя игрока который проголосовал.</td>
+<td>array</td>
+<td>array('username' =&gt; '{player}','item' =&gt; '1','item-count' =&gt; 64)</td>
+  </tr>
+<tr>
+<td>change-column</td>
+<td>Поле которое изменяем при всех случаях в режиме advanced=false</td>
+<td>string</td>
+<td>balance</td>
+  </tr>
+<tr>
+<td>user-column</td>
+<td>Поле в котором ищется игрок при всех случаях в режиме advanced=false</td>
+<td>string</td>
+<td>balance</td>
+  </tr>
+<tr>
+<td>default</td>
+<td>Стандартное значение поля "change-column" если поиск по "user-column" не дал результатов</td>
+<td>int</td>
+<td>30</td>
+  </tr>
+<tr>
+<td>change</td>
+<td>Сколько добавлять к "change-column". Например, пополнение счета на 500 рублей будет происходить если тут указать 500</td>
+<td>string/int</td>
+<td>1</td>
+  </tr>
+</table><p><em>Type</em></p>
+
+<table>
+<tr>
+<th>Значение</th>
+<th>Функционал</th>
+    </tr>
+<tr>
+<td>0</td>
+<td>Попытка добавления "change" к значению "change-column". Если юзер не найден в базе - ничего не делаем.</td>
+    </tr>
+<tr>
+<td>1</td>
+<td>Попытка добавления "change" к значению "change-column". Если юзер не найден в базе - добавляем новую запись с значением "default" + "change".</td>
+    </tr>
+<tr>
+<td>2</td>
+<td>Выставления значения поля "change-column" на "change". Если юзер не найден в базе - ничего не делаем.</td>
+    </tr>
+<tr>
+<td>3</td>
+<td>Выставления значения поля "change-column" на "change". Если юзер не найден в базе - добавляем новую запись.</td>
+    </tr>
+<tr>
+<td>4</td>
+<td>Вставка новой записи</td>
+    </tr>
+</table><p>Рассмотрим несколько вариантов ситуаций.</p>
+
+<p><em>[1] Добавление денег в табличку iConomy.</em></p>
+
+<pre><code>array(
+    'active' =&gt; true,
+    'table-name' =&gt; 'iConomy',
+    'type' =&gt; 0,
+    'change-column' =&gt; 'balance',
+    'user-column' =&gt; 'username',
+    'change' =&gt; 1
+)
+</code></pre>
+
+<p><em>[2] Добавление денег в табличку iConomy. Если игрок не найден - создаем новую запись.</em></p>
+
+<pre><code>array(
+    'active' =&gt; true,
+    'table-name' =&gt; 'iConomy',
+    'type' =&gt; 1,
+    'change-column' =&gt; 'balance',
+    'user-column' =&gt; 'username',
+    'default' =&gt; 30,
+    'change' =&gt; 1
+)
+</code></pre>
+
+<p><em>[3] Выставление значения поля group в значение "voted" в табличке "users-groups"</em></p>
+
+<pre><code>array(
+    'active' =&gt; true,
+    'table-name' =&gt; 'users-groups',
+    'type' =&gt; 2,
+    'change-column' =&gt; 'group',
+    'user-column' =&gt; 'username',
+    'change' =&gt; 'voted'
+)
+</code></pre>
+
+<p><em>[4] Выставление значения поля group в значение "voted" в табличке "users-groups" или добавление если юзер не найден.</em></p>
+
+<pre><code>array(
+    'active' =&gt; true,
+    'table-name' =&gt; 'users-groups',
+    'type' =&gt; 3,
+    'change-column' =&gt; 'group',
+    'user-column' =&gt; 'username',
+    'change' =&gt; 'voted'
+)
+</code></pre>
+
+<p><em>[5] Добавление в таблицу "votes" запись о голосовании. Обычный режим. В поле "portal" вписываем заначение "mctop"</em></p>
+
+<pre><code>array(
+    'active' =&gt; true,
+    'table-name' =&gt; 'votes',
+    'type' =&gt; 4,
+    'change-column' =&gt; 'portal',
+    'user-column' =&gt; 'username',
+    'change' =&gt; 'mctop'
+)
+</code></pre>
+
+<p><em>[6] Добавление в таблицу "votes" запись о голосовании. Расширенный режим. Добавление записи для выдачи предметов (плагин отдельно ищи).</em></p>
+
+<pre><code>array(
+    'active' =&gt; true,
+    'table-name' =&gt; 'items',
+    'type' =&gt; 4,
+    'advanced' =&gt; true,
+    'fields' =&gt; array(
+        'username' =&gt; '{player}',
+        'item' =&gt; '1',
+        'item-count' =&gt; 64
+    ),
+)
+</code></pre>
+
+<h2>Комплексный пример настройки</h2>
+
+<p>При голосовании выполняем действия 1, 3 и 6 из выше указанного списка.</p>
+
+<pre><code>$config = array(
+    'db' =&gt; array(
+        'driver' =&gt; 'mysql',
+        'host' =&gt; 'localhost',
+        'username' =&gt; 'root',
+        'password' =&gt; '',
+        'database' =&gt; 'minecraft',
+    ),
+    'security-code' =&gt; '',
+    'jobs' =&gt; array(
+        array(
+            'active' =&gt; true,
+            'table-name' =&gt; 'iConomy',
+            'type' =&gt; 0,
+            'change-column' =&gt; 'balance',
+            'user-column' =&gt; 'username',
+            'change' =&gt; 1
+        ),
+        array(
+            'active' =&gt; true,
+            'table-name' =&gt; 'users-groups',
+            'type' =&gt; 3,
+            'change-column' =&gt; 'group',
+            'user-column' =&gt; 'username',
+            'change' =&gt; 'voted'
+        ),
+        array(
+            'active' =&gt; true,
+            'table-name' =&gt; 'items',
+            'type' =&gt; 4,
+            'advanced' =&gt; true,
+            'fields' =&gt; array(
+                'username' =&gt; '{player}',
+                'item' =&gt; '1',
+                'item-count' =&gt; 64
+            )
+        )
+    )
+</code></pre>
+
+<p><img src="http://mctalk.org/public/style_images/mctalk/other/logo-small.png" alt="MC Talk"></p>
+
+<p>Поддержка скрипта осуществляется на портале MC Talk - <a href="http://mctalk.org/topic/11-mctop-php-bonusi-prodvinutoe-reshenie/">http://mctalk.org/topic/11-mctop-php-bonusi-prodvinutoe-reshenie/</a> </p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
