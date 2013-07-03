@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * MCTOP VOTING BONUS CLIENT
+ * Version 1.2
+ * Created by Alex Bond
+ */
+
 $config = array(
     'db' => array(
         'driver' => 'mysql',
@@ -55,7 +61,12 @@ if (isset($_GET['hash']) && isset($_GET['player']) && strlen($_GET['hash']) == 3
                     }
                     case 1:
                     {
-                        $query = $db->prepare("INSERT INTO " . $item['table-name'] . " (`" . $item['user-column'] . "`,`" . $item['change-column'] . "`) VALUES (?, " . $item['default'] + $item['change'] . ") ON duplicate KEY UPDATE `" . $item['change-column'] . "`=`" . $item['change-column'] . "`+" . $item['change']);
+                        $select = $db->prepare("SELECT * FROM " . $item['table-name'] . " WHERE `" . $item['user-column'] . "`=?");
+                        $select->execute(array($_GET['player']));
+                        if ($select->fetchColumn() > 0)
+                            $query = $db->prepare("UPDATE " . $item['table-name'] . " SET `" . $item['change-column'] . "`=`" . $item['change-column'] . "`+" . $item['change'] . " WHERE `" . $item['user-column'] . "`=?");
+                        else
+                            $query = $db->prepare("INSERT INTO " . $item['table-name'] . " (`" . $item['user-column'] . "`,`" . $item['change-column'] . "`) VALUES (?, " . (intval($item['default']) + intval($item['change'])) . ")");
                         $query->execute(array($_GET['player']));
                         break;
                     }
@@ -67,8 +78,15 @@ if (isset($_GET['hash']) && isset($_GET['player']) && strlen($_GET['hash']) == 3
                     }
                     case 3:
                     {
-                        $query = $db->prepare("INSERT INTO " . $item['table-name'] . " (`" . $item['user-column'] . "`,`" . $item['change-column'] . "`) VALUES (?, ?) ON duplicate KEY UPDATE `" . $item['change-column'] . "`=?");
-                        $query->execute(array($_GET['player'], $item['change'], $item['change']));
+                        $select = $db->prepare("SELECT * FROM " . $item['table-name'] . " WHERE `" . $item['user-column'] . "`=?");
+                        $select->execute(array($_GET['player']));
+                        if ($select->fetchColumn() > 0) {
+                            $query = $db->prepare("UPDATE " . $item['table-name'] . " SET `" . $item['change-column'] . "`=? WHERE `" . $item['user-column'] . "`=?");
+                            $query->execute(array($item['change'], $_GET['player']));
+                        } else {
+                            $query = $db->prepare("INSERT INTO " . $item['table-name'] . " (`" . $item['user-column'] . "`,`" . $item['change-column'] . "`) VALUES (?, ?)");
+                            $query->execute(array($_GET['player'], $item['change']));
+                        }
                         break;
                     }
                     case 4:
@@ -79,9 +97,9 @@ if (isset($_GET['hash']) && isset($_GET['player']) && strlen($_GET['hash']) == 3
                             $values = '';
                             foreach ($item['fields'] as $k => $a) {
                                 if (!empty($columns))
-                                    $columns .= ', `' . $key . '`';
+                                    $columns .= ', `' . $k . '`';
                                 else {
-                                    $columns .= '`' . $key . '`';
+                                    $columns .= '`' . $k . '`';
                                 }
                                 if (!empty($values))
                                     $values .= ', ?';
